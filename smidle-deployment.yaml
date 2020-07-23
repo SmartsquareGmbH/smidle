@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smidle
+  labels:
+    app: smidle
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: smidle
+  template:
+    metadata:
+      labels:
+        app: smidle
+    spec:
+      containers:
+      - name: hello-world
+        image: strm/helloworld-http
+        ports:
+        - containerPort: 80
