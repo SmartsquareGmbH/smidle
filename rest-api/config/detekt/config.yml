@@ -1,0 +1,21 @@
+complexity:
+  TooManyFunctions:
+    ignorePrivate: true
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+
+performance:
+  SpreadOperator:
+    active: false
+
+style:
+  ForbiddenComment:
+    active: false
+  MagicNumber:
+    active: false
+  ThrowsCount:
+    active: false
+  ReturnCount:
+    active: false

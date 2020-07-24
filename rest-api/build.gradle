@@ -53,6 +53,17 @@ dependencies {
     }
 }
 
+detekt {
+    config = files("config/detekt/config.yml")
+
+    buildUponDefaultConfig = true
+
+    reports {
+        xml.destination = file("$buildDir/reports/detekt/detekt.xml")
+        html.destination = file("$buildDir/reports/detekt/detekt.html")
+    }
+}
+
 test {
     useJUnitPlatform {
         excludeEngines "junit-vintage"
