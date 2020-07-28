@@ -7,6 +7,7 @@ buildscript {
         ktlintGradleVersion = "9.2.1"
         detektVersion = "1.10.0"
         jacksonVersion = "2.11.0"
+        jibGradlePluginVersion = "2.1.0"
     }
 
     repositories {
@@ -21,6 +22,8 @@ buildscript {
 
         classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektVersion"
         classpath "org.jlleitschuh.gradle:ktlint-gradle:$ktlintGradleVersion"
+
+        classpath "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:$jibGradlePluginVersion"
     }
 }
 
@@ -31,6 +34,7 @@ apply plugin: "org.springframework.boot"
 apply plugin: "io.gitlab.arturbosch.detekt"
 apply plugin: "org.jlleitschuh.gradle.ktlint"
 apply plugin: "io.spring.dependency-management"
+apply plugin: "com.google.cloud.tools.jib"
 
 group = "de.smartsquare"
 version = "0.0.1-SNAPSHOT"
@@ -75,5 +79,17 @@ kapt {
 test {
     useJUnitPlatform {
         excludeEngines "junit-vintage"
+    }
+}
+
+jib {
+    container.mainClass = "de.smartsquare.smidle.SmidleApplicationKt"
+
+    to {
+        image = "${project.name}/rest-api"
+    }
+
+    from {
+        image = "gcr.io/distroless/java@sha256:00b6c5ad8f50f6d4434d9557900ab89a84d349264cc07bd842f1be1e5f2aa827"
     }
 }
