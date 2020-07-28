@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @ExtendWith(SpringExtension::class)
 @AutoConfigureMockMvc
 @SpringBootTest
+@ActiveProfiles("test")
 class PullRequestControllerTest {
 
     @Autowired
@@ -46,7 +48,7 @@ class PullRequestControllerTest {
 
     @Test
     fun `sending webhook with valid signature is successfully`() {
-        val validSignature = "sha1=5b26f73cad8cb135126e464c618710b115da3225"
+        val validSignature = "sha1=2d8eec7d66aaa8453c8ca4d3635f345f4e6d47dd"
         val post = post("/api/pull-request")
             .header("X-Hub-Signature", validSignature)
             .contentType(APPLICATION_JSON)
@@ -59,7 +61,7 @@ class PullRequestControllerTest {
 
     @Test
     fun `sending webhook returns pull request action`() {
-        val validSignature = "sha1=5b26f73cad8cb135126e464c618710b115da3225"
+        val validSignature = "sha1=2d8eec7d66aaa8453c8ca4d3635f345f4e6d47dd"
         val post = post("/api/pull-request")
             .header("X-Hub-Signature", validSignature)
             .contentType(APPLICATION_JSON)
