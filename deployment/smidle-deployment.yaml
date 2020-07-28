@@ -14,8 +14,11 @@ spec:
       labels:
         app: smidle
     spec:
+      imagePullSecrets:
+        - name: docker-registries
       containers:
-      - name: hello-world
-        image: strm/helloworld-http
-        ports:
-        - containerPort: 80
+        - name: smidle-rest-api
+          image: docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
