@@ -1,7 +1,7 @@
 package de.smartsquare.smidle.pullrequest
 
 import de.smartsquare.smidle.util.asPullRequestAction
-import junit.framework.Assert.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
