@@ -1,6 +1,7 @@
 package de.smartsquare.smidle.pullrequest
 
-import de.smartsquare.smidle.util.asPullRequestAction
+import de.smartsquare.smidle.testutil.asPullRequest
+import de.smartsquare.smidle.util.asAction
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -13,6 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.Instant
 
 @ExtendWith(SpringExtension::class)
 @AutoConfigureMockMvc
@@ -23,23 +25,13 @@ class PullRequestControllerTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
 
-    private val webhook = """
-        {
-          "action": "opened",
-          "number": 1,
-          "pull_request": {
-            "id": 279147437
-          }
-        }
-    """.trimIndent()
-
     @Test
-    fun `sending webhook with invalid signature is unauthorized`() {
+    fun `sending action with invalid signature is unauthorized`() {
         val invalidSignature = "sha=invalid_signature"
         val post = post("/api/pull-request")
             .header("X-Hub-Signature", invalidSignature)
             .contentType(APPLICATION_JSON)
-            .content(webhook)
+            .content("{ }")
 
         mockMvc
             .perform(post)
@@ -47,34 +39,83 @@ class PullRequestControllerTest {
     }
 
     @Test
-    fun `sending webhook with valid signature is successfully`() {
-        val validSignature = "sha1=2d8eec7d66aaa8453c8ca4d3635f345f4e6d47dd"
+    fun `sending opened action with valid signature returns pull request action`() {
+        val validSignature = "sha1=343a8f2a982c6b40331a16ab676b512270d0cc52"
+        val openedAction = """
+            {
+              "action": "opened",
+              "pull_request": {
+                "id": 279147437,
+                "title": "Pull Request Title",
+                "url": "http://localhost",
+                "created_at": "2020-07-28T11:48:28Z"
+              }
+            }
+        """.trimIndent()
+
         val post = post("/api/pull-request")
             .header("X-Hub-Signature", validSignature)
             .contentType(APPLICATION_JSON)
-            .content(webhook)
-
-        mockMvc
-            .perform(post)
-            .andExpect(status().isOk)
-    }
-
-    @Test
-    fun `sending webhook returns pull request action`() {
-        val validSignature = "sha1=2d8eec7d66aaa8453c8ca4d3635f345f4e6d47dd"
-        val post = post("/api/pull-request")
-            .header("X-Hub-Signature", validSignature)
-            .contentType(APPLICATION_JSON)
-            .content(webhook)
+            .content(openedAction)
 
         val response = mockMvc
             .perform(post)
+            .andExpect(status().isOk)
             .andReturn()
             .response
             .contentAsString
-            .asPullRequestAction()
+            .asAction()
 
-        assertEquals(response.action, ActionType.OPENED)
-        assertEquals(response.number, 1)
+        val expectedResponse = Action(
+            type = ActionType.OPENED,
+            pullRequest = PullRequest(
+                id = 279147437,
+                title = "Pull Request Title",
+                url = "http://localhost",
+                createdAt = Instant.parse("2020-07-28T11:48:28Z")
+            )
+        )
+
+        assertEquals(expectedResponse, response)
+    }
+
+    @Test
+    fun `sending closed action with valid signature returns created pull request`() {
+        val validSignature = "sha1=8cf5eb15be6d8bff5e4ab4590f259a3e61526fb4"
+        val closedAction = """
+            {
+              "action": "closed",
+              "pull_request": {
+                "id": 279147438,
+                "title": "Pull Request Title",
+                "url": "http://localhost",
+                "created_at": "2020-07-28T11:48:28Z",
+                "closed_at": "2020-07-28T12:48:28Z"
+              }
+            }
+        """.trimIndent()
+
+        val post = post("/api/pull-request")
+            .header("X-Hub-Signature", validSignature)
+            .contentType(APPLICATION_JSON)
+            .content(closedAction)
+
+        val response = mockMvc
+            .perform(post)
+            .andExpect(status().isCreated)
+            .andReturn()
+            .response
+            .contentAsString
+            .asPullRequest()
+
+        val expectedResponse = PullRequest(
+            id = 279147438,
+            title = "Pull Request Title",
+            url = "http://localhost",
+            createdAt = Instant.parse("2020-07-28T11:48:28Z"),
+            closedAt = Instant.parse("2020-07-28T12:48:28Z")
+        )
+
+        assertEquals(expectedResponse, response)
     }
 }
