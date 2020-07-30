@@ -9,3 +9,11 @@ secretGenerator:
     files:
       - .dockerconfigjson=docker-registry-auth.json
     type: kubernetes.io/dockerconfigjson
+  - name: smidle-secret
+    literals:
+      - postgres-password=tuuado69z4ynd05t
+configMapGenerator:
+  - name: backendconfig
+    files:
+      - rest-api.properties
+      - ca-certificate-postgresql.crt
