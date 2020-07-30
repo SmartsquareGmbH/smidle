@@ -1,7 +1,8 @@
 package de.smartsquare.smidle.pullrequest
 
-import de.smartsquare.smidle.testutil.asPullRequest
-import de.smartsquare.smidle.util.asAction
+import com.fasterxml.jackson.databind.MapperFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -21,6 +22,10 @@ import java.time.Instant
 @SpringBootTest
 @ActiveProfiles("test")
 class PullRequestControllerTest {
+
+    private val objectMapper: ObjectMapper = jacksonObjectMapper()
+        .findAndRegisterModules()
+        .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -64,7 +69,8 @@ class PullRequestControllerTest {
             .andReturn()
             .response
             .contentAsString
-            .asAction()
+
+        val action = objectMapper.readValue(response, Action::class.java)
 
         val expectedResponse = Action(
             type = ActionType.OPENED,
@@ -76,7 +82,7 @@ class PullRequestControllerTest {
             )
         )
 
-        assertEquals(expectedResponse, response)
+        assertEquals(expectedResponse, action)
     }
 
     @Test
@@ -106,7 +112,8 @@ class PullRequestControllerTest {
             .andReturn()
             .response
             .contentAsString
-            .asPullRequest()
+
+        val pullRequest = objectMapper.readValue(response, PullRequest::class.java)
 
         val expectedResponse = PullRequest(
             id = 279147438,
@@ -116,6 +123,6 @@ class PullRequestControllerTest {
             closedAt = Instant.parse("2020-07-28T12:48:28Z")
         )
 
-        assertEquals(expectedResponse, response)
+        assertEquals(expectedResponse, pullRequest)
     }
 }
