@@ -2,8 +2,6 @@ spring:
   main:
     banner-mode: "off"
   jpa:
-    database: h2
-    generate-ddl: false
     hibernate:
       ddl-auto: create-drop
 
