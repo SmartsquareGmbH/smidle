@@ -2,13 +2,12 @@ spring:
   main:
     banner-mode: "off"
   jpa:
-    database: postgresql
+    hibernate:
+      ddl-auto: validate
   datasource:
-    platform: postgres
     url: jdbc:postgresql://localhost:5432/postgres
     username: smidle
     password: postgres
-    driver-class-name: org.postgresql.Driver
 
 webhooks:
   secret: "1.k%Q[UA>^{4Z?}~VD7="
