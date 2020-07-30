@@ -93,7 +93,7 @@ jib {
     container.mainClass = "de.smartsquare.smidle.SmidleApplicationKt"
 
     to {
-        image = "${project.name}/rest-api"
+        image = "docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api:latest"
     }
 
     from {
