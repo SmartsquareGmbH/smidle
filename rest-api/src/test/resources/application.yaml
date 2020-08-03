@@ -1,0 +1,10 @@
+spring:
+  main:
+    banner-mode: "off"
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    url: "jdbc:postgresql://${embedded.postgresql.host}:${embedded.postgresql.port}/${embedded.postgresql.schema}?autosave=ALWAYS"
+    username: ${embedded.postgresql.user}
+    password: ${embedded.postgresql.password}

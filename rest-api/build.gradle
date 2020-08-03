@@ -10,6 +10,8 @@ buildscript {
         jibGradlePluginVersion = "2.1.0"
         postgresVersion = "42.2.14"
         flywayVersion = "6.5.0"
+        testcontainersSpringBootVersion = "1.77"
+        springCloudVersion = "2.2.3.RELEASE"
     }
 
     repositories {
@@ -61,6 +63,9 @@ dependencies {
     kapt "org.springframework.boot:spring-boot-configuration-processor"
 
     runtimeOnly "org.postgresql:postgresql:$postgresVersion"
+
+    testImplementation "com.playtika.testcontainers:embedded-postgresql:$testcontainersSpringBootVersion"
+    testImplementation "org.springframework.cloud:spring-cloud-starter:$springCloudVersion"
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude group: "com.vaadin.external.google", module: "android-json"
