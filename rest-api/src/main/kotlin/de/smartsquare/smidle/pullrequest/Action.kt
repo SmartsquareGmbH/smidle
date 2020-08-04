@@ -6,5 +6,5 @@ import com.fasterxml.jackson.annotation.JsonProperty
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Action(
     @JsonProperty("action") val type: ActionType,
-    @JsonProperty("pull_request") val pullRequest: PullRequest
+    @JsonProperty("pull_request") val pullRequest: PullRequestObject
 )
