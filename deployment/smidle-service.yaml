@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: smidle-service
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: smidle
   ports:
