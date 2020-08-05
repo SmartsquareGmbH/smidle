@@ -113,6 +113,9 @@ jobs:
       - name: Deploy DigitalOcean Kubernetes
         run: kustomize build $GITHUB_WORKSPACE/deployment | kubectl --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig apply -f -
 
+      - name: Restart Pods
+        run: kubectl rollout restart deployment/smidle
+
   delete-old-images:
     needs: [publish-backend]
     if: github.ref == 'refs/heads/master'
