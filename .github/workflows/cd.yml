@@ -114,7 +114,7 @@ jobs:
         run: kustomize build $GITHUB_WORKSPACE/deployment | kubectl --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig apply -f -
 
       - name: Cleanup unused configmaps and secrets
-        run: kustomize build $GITHUB_WORKSPACE/deployment/production | kubectl --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig apply -f - --prune -l author=kustomize
+        run: kustomize build $GITHUB_WORKSPACE/deployment | kubectl --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig apply -f - --prune -l author=kustomize
 
   delete-old-images:
     needs: [publish-backend]
