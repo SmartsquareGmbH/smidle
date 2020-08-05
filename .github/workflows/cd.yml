@@ -114,7 +114,7 @@ jobs:
         run: kustomize build $GITHUB_WORKSPACE/deployment | kubectl --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig apply -f -
 
       - name: Restart Pods
-        run: kubectl rollout restart deployment/smidle
+        run: kubectl --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig rollout restart deployment/smidle
 
   delete-old-images:
     needs: [publish-backend]
