@@ -28,8 +28,8 @@ class PullRequestController(private val hashUtil: HashUtil, private val pullRequ
 
     @PostMapping
     fun pullRequestAction(
-            @RequestHeader("X-Hub-Signature") signature: String,
-            @RequestBody payload: String
+        @RequestHeader("X-Hub-Signature") signature: String,
+        @RequestBody payload: String
     ): ResponseEntity<Any> {
         if (signatureIsInvalid(payload, signature)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid signature supplied.")
@@ -61,7 +61,7 @@ class PullRequestController(private val hashUtil: HashUtil, private val pullRequ
 
     @GetMapping("/lifetime/{id}")
     fun lifeTimeOfPullRequest(
-            @PathVariable id: Long
+        @PathVariable id: Long
     ): ResponseEntity<Any> {
         val pullRequest = pullRequestRepository.findByIdOrNull(id)
                 ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
