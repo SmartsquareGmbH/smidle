@@ -79,6 +79,12 @@ jobs:
       - name: Build Backend
         run: ./rest-api/gradlew -p rest-api jibDockerBuild
 
+      - uses: azure/docker-login@v1
+        with:
+          login-server: docker.pkg.github.com
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Push images
         run: docker push docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api:latest
 
