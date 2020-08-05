@@ -80,9 +80,7 @@ jobs:
         run: ./rest-api/gradlew -p rest-api jibDockerBuild
 
       - name: Push images
-        run: |
-          docker tag docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api:latest
-          docker push docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api:latest
+        run: docker push docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api:latest
 
   deploy:
     needs: [publish-backend, check-deployment]
