@@ -75,14 +75,14 @@ class PullRequestController(private val hashUtil: HashUtil, private val pullRequ
     fun averageLifetimeOfAllPullRequests(): ResponseEntity<Any> {
         val allPullRequests = pullRequestRepository.findAll()
 
-        return ResponseEntity.ok().body(calculateAverageLiftime(allPullRequests))
+        return ResponseEntity.ok().body(calculateAverageLifetime(allPullRequests))
     }
 
     private fun signatureIsInvalid(payload: String, signature: String) = !hashUtil.checkSignature(payload, signature)
 
     private fun PullRequest.getLifetimeInMinutes(): Long = Duration.between(this.createdAt, this.closedAt).toMinutes()
 
-    private fun calculateAverageLiftime(pullRequests: List<PullRequest>): Long? {
+    private fun calculateAverageLifetime(pullRequests: List<PullRequest>): Long? {
         var sumLifetime: Long = 0
 
         return if (pullRequests.isNotEmpty()) {
