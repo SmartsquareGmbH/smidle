@@ -60,7 +60,7 @@ class PullRequestController(private val hashUtil: HashUtil, private val pullRequ
     }
 
     @GetMapping("/lifetime/{id}")
-    fun lifeTimeOfPullRequest(
+    fun lifetimeOfPullRequest(
         @PathVariable id: Long
     ): ResponseEntity<Any> {
         val pullRequest = pullRequestRepository.findByIdOrNull(id)
@@ -68,10 +68,29 @@ class PullRequestController(private val hashUtil: HashUtil, private val pullRequ
                         "Pull Request with id $id does not exist."
                 )
 
-        return ResponseEntity.ok().body(pullRequest.getLifeTimeInSeconds())
+        return ResponseEntity.ok().body(pullRequest.getLifetimeInMinutes())
+    }
+
+    @GetMapping("/lifetime")
+    fun averageLifetimeOfAllPullRequests(): ResponseEntity<Any> {
+        val allPullRequests = pullRequestRepository.findAll()
+
+        return ResponseEntity.ok().body(calculateAverageLiftime(allPullRequests))
     }
 
     private fun signatureIsInvalid(payload: String, signature: String) = !hashUtil.checkSignature(payload, signature)
 
-    private fun PullRequest.getLifeTimeInSeconds(): Long = Duration.between(this.createdAt, this.closedAt).toSeconds()
+    private fun PullRequest.getLifetimeInMinutes(): Long = Duration.between(this.createdAt, this.closedAt).toMinutes()
+
+    private fun calculateAverageLiftime(pullRequests: List<PullRequest>): Long? {
+        var sumLifetime: Long = 0
+
+        return if (pullRequests.isNotEmpty()) {
+            pullRequests.forEach { sumLifetime += it.getLifetimeInMinutes() }
+
+            sumLifetime / pullRequests.size
+        } else {
+            null
+        }
+    }
 }

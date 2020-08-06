@@ -27,7 +27,6 @@ import java.time.Instant
 @SpringBootTest
 @ActiveProfiles("test")
 class PullRequestControllerTest {
-
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
             .findAndRegisterModules()
             .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
@@ -187,7 +186,7 @@ class PullRequestControllerTest {
     }
 
     @Test
-    fun `returns lifetime in seconds of existing pull request that is closed`() {
+    fun `returns lifetime in minutes of existing pull request that is closed`() {
         pullRequestRepository.save(closedPullRequest)
 
         val get = get("/api/pull-request/lifetime/${closedPullRequest.id}")
@@ -199,6 +198,45 @@ class PullRequestControllerTest {
                 .response
                 .contentAsString
 
-        assertEquals(response, "3600")
+        assertEquals(response, "60")
+    }
+
+    @Test
+    fun `returns null if no closed pullrequest is in database`() {
+        assertEquals(pullRequestRepository.findAll(), emptyList<PullRequest>())
+
+        val get = get("/api/pull-request/lifetime/")
+
+        val response = mockMvc
+            .perform(get)
+            .andExpect(status().isOk)
+            .andReturn()
+            .response
+            .contentAsString
+
+        assertEquals(response, "")
+    }
+
+    @Test
+    fun `returns average lifetime in minutes of all pullrequests`() {
+        pullRequestRepository.save(closedPullRequest)
+        pullRequestRepository.save(PullRequest(
+            id = 279147439,
+            title = "Pull Request Title",
+            url = "http://localhost",
+            createdAt = Instant.parse("2020-07-26T11:48:28Z"),
+            closedAt = Instant.parse("2020-07-26T13:48:28Z")
+        ))
+
+        val get = get("/api/pull-request/lifetime/")
+
+        val response = mockMvc
+            .perform(get)
+            .andExpect(status().isOk)
+            .andReturn()
+            .response
+            .contentAsString
+
+        assertEquals(response, "90")
     }
 }
