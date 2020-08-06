@@ -6,17 +6,14 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import de.smartsquare.smidle.pullrequest.ActionType.CLOSED
 import de.smartsquare.smidle.pullrequest.ActionType.REOPENED
 import de.smartsquare.smidle.secret.HashUtil
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.time.Duration
 
 @RestController
 @RequestMapping("/api/pull-request")
@@ -26,7 +23,7 @@ class PullRequestController(private val hashUtil: HashUtil, private val pullRequ
             .findAndRegisterModules()
             .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
 
-    @PostMapping
+    @PostMapping("/action")
     fun pullRequestAction(
         @RequestHeader("X-Hub-Signature") signature: String,
         @RequestBody payload: String
@@ -59,34 +56,31 @@ class PullRequestController(private val hashUtil: HashUtil, private val pullRequ
         }
     }
 
-    @GetMapping("/lifetime/{id}")
-    fun lifetimeOfPullRequest(
-        @PathVariable id: Long
-    ): ResponseEntity<Any> {
-        val pullRequest = pullRequestRepository.findByIdOrNull(id)
-                ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                        "Pull Request with id $id does not exist."
-                )
+    @GetMapping
+    fun pullRequests(): ResponseEntity<Any> {
+        val pullRequests = pullRequestRepository.findAll()
 
-        return ResponseEntity.ok().body(pullRequest.getLifetimeInMinutes())
+        if (pullRequests.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Pullrequests found.")
+        }
+
+        return ResponseEntity.ok().body(pullRequests)
     }
 
     @GetMapping("/lifetime")
-    fun averageLifetimeOfAllPullRequests(): ResponseEntity<Any> {
-        val allPullRequests = pullRequestRepository.findAll()
+    fun averageLifetimeOfPullRequests(): ResponseEntity<Any> {
+        val pullRequests = pullRequestRepository.findAll()
 
-        return ResponseEntity.ok().body(calculateAverageLifetime(allPullRequests))
+        return ResponseEntity.ok().body(calculateAverageLifetime(pullRequests))
     }
 
     private fun signatureIsInvalid(payload: String, signature: String) = !hashUtil.checkSignature(payload, signature)
-
-    private fun PullRequest.getLifetimeInMinutes(): Long = Duration.between(this.createdAt, this.closedAt).toMinutes()
 
     private fun calculateAverageLifetime(pullRequests: List<PullRequest>): Long? {
         var sumLifetime: Long = 0
 
         return if (pullRequests.isNotEmpty()) {
-            pullRequests.forEach { sumLifetime += it.getLifetimeInMinutes() }
+            pullRequests.forEach { sumLifetime += it.lifetime }
 
             sumLifetime / pullRequests.size
         } else {
