@@ -3,6 +3,9 @@ package de.smartsquare.smidle.pullrequest
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import de.smartsquare.smidle.FlywayTestExtension
+import org.hamcrest.Matchers.containsString
+import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -14,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -22,7 +24,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Instant
 
-@ExtendWith(SpringExtension::class)
+@ExtendWith(FlywayTestExtension::class)
 @AutoConfigureMockMvc
 @SpringBootTest
 @ActiveProfiles("test")
@@ -46,6 +48,14 @@ class PullRequestControllerTest {
             closedAt = Instant.parse("2020-07-28T12:48:28Z")
     )
 
+    private val closedPullRequest2 = PullRequest(
+            id = 279147439,
+            title = "Pull Request Title",
+            url = "http://localhost",
+            createdAt = Instant.parse("2020-07-26T11:48:28Z"),
+            closedAt = Instant.parse("2020-07-26T13:48:28Z")
+    )
+
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -55,7 +65,7 @@ class PullRequestControllerTest {
     @Test
     fun `sending action with invalid signature is unauthorized`() {
         val invalidSignature = "sha=invalid_signature"
-        val post = post("/api/pull-request")
+        val post = post("/api/pull-request/action")
                 .header("X-Hub-Signature", invalidSignature)
                 .contentType(APPLICATION_JSON)
                 .content("{ }")
@@ -80,7 +90,7 @@ class PullRequestControllerTest {
             }
         """.trimIndent()
 
-        val post = post("/api/pull-request")
+        val post = post("/api/pull-request/action")
                 .header("X-Hub-Signature", validSignature)
                 .contentType(APPLICATION_JSON)
                 .content(openedAction)
@@ -118,7 +128,7 @@ class PullRequestControllerTest {
             }
         """.trimIndent()
 
-        val post = post("/api/pull-request")
+        val post = post("/api/pull-request/action")
                 .header("X-Hub-Signature", validSignature)
                 .contentType(APPLICATION_JSON)
                 .content(closedAction)
@@ -154,7 +164,7 @@ class PullRequestControllerTest {
             }
         """.trimIndent()
 
-        val post = post("/api/pull-request")
+        val post = post("/api/pull-request/action")
                 .header("X-Hub-Signature", validSignature)
                 .contentType(APPLICATION_JSON)
                 .content(reopenedAction)
@@ -179,26 +189,26 @@ class PullRequestControllerTest {
     }
 
     @Test
-    fun `returns not found for not existing pull request`() {
+    fun `returns not found if no pullrequest is in database`() {
+        assertEquals(pullRequestRepository.findAll(), emptyList<PullRequest>())
+
         mockMvc
-                .get("/api/pull-request/lifetime/${openPullRequestObject.id}")
-                .andExpect { status { isNotFound } }
+            .get("/api/pull-request")
+            .andExpect { status { isNotFound } }
     }
 
     @Test
-    fun `returns lifetime in minutes of existing pull request that is closed`() {
+    fun `returns all pullrequests`() {
         pullRequestRepository.save(closedPullRequest)
+        pullRequestRepository.save(closedPullRequest2)
 
-        val get = get("/api/pull-request/lifetime/${closedPullRequest.id}")
-
-        val response = mockMvc
-                .perform(get)
-                .andExpect(status().isOk)
-                .andReturn()
-                .response
-                .contentAsString
-
-        assertEquals(response, "60")
+        mockMvc
+            .get("/api/pull-request")
+            .andExpect {
+                status { isOk }
+                jsonPath("$.length()", equalTo(2))
+                content { string(containsString("Pull Request Title")) }
+            }
     }
 
     @Test
@@ -220,13 +230,7 @@ class PullRequestControllerTest {
     @Test
     fun `returns average lifetime in minutes of all pullrequests`() {
         pullRequestRepository.save(closedPullRequest)
-        pullRequestRepository.save(PullRequest(
-            id = 279147439,
-            title = "Pull Request Title",
-            url = "http://localhost",
-            createdAt = Instant.parse("2020-07-26T11:48:28Z"),
-            closedAt = Instant.parse("2020-07-26T13:48:28Z")
-        ))
+        pullRequestRepository.save(closedPullRequest2)
 
         val get = get("/api/pull-request/lifetime/")
 
