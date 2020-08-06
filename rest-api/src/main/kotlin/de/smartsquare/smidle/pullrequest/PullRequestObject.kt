@@ -2,6 +2,7 @@ package de.smartsquare.smidle.pullrequest
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.time.Duration
 import java.time.Instant
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -25,6 +26,7 @@ data class PullRequestObject(
                 this.url,
                 this.createdAt,
                 this.closedAt,
+                Duration.between(this.createdAt, this.closedAt).toMinutes(),
                 this.mergedAt
         )
     }

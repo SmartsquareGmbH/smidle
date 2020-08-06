@@ -1,6 +1,7 @@
 package de.smartsquare.smidle.pullrequest
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import java.time.Duration
 import java.time.Instant
 import javax.persistence.Entity
 import javax.persistence.Id
@@ -13,6 +14,7 @@ data class PullRequest(
     val url: String,
     val createdAt: Instant,
     val closedAt: Instant,
+    val lifetime: Long = Duration.between(createdAt, closedAt).toMinutes(),
     val mergedAt: Instant? = null
 ) {
 
