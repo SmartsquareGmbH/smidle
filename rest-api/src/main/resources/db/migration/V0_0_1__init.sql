@@ -5,5 +5,6 @@ create table pull_request
     url        varchar     not null,
     created_at timestamptz not null,
     closed_at  timestamptz not null,
+    lifetime   bigint      not null,
     merged_at  timestamptz
 );
