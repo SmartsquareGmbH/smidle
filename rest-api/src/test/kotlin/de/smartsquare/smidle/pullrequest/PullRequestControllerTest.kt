@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import de.smartsquare.smidle.FlywayTestExtension
+import de.smartsquare.smidle.TestObjects.closedPullRequest
+import de.smartsquare.smidle.TestObjects.closedPullRequest2
+import de.smartsquare.smidle.TestObjects.openPullRequestObject
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -22,7 +25,6 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.time.Instant
 
 @ExtendWith(FlywayTestExtension::class)
 @AutoConfigureMockMvc
@@ -32,29 +34,6 @@ class PullRequestControllerTest {
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
             .findAndRegisterModules()
             .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
-
-    private val openPullRequestObject = PullRequestObject(
-            id = 279147437,
-            title = "Pull Request Title",
-            url = "http://localhost",
-            createdAt = Instant.parse("2020-07-28T11:48:28Z")
-    )
-
-    private val closedPullRequest = PullRequest(
-            id = 279147438,
-            title = "Pull Request Title",
-            url = "http://localhost",
-            createdAt = Instant.parse("2020-07-28T11:48:28Z"),
-            closedAt = Instant.parse("2020-07-28T12:48:28Z")
-    )
-
-    private val closedPullRequest2 = PullRequest(
-            id = 279147439,
-            title = "Pull Request Title",
-            url = "http://localhost",
-            createdAt = Instant.parse("2020-07-26T11:48:28Z"),
-            closedAt = Instant.parse("2020-07-26T13:48:28Z")
-    )
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -198,7 +177,7 @@ class PullRequestControllerTest {
     }
 
     @Test
-    fun `returns all pullrequests`() {
+    fun `returns latest pullrequests`() {
         pullRequestRepository.save(closedPullRequest)
         pullRequestRepository.save(closedPullRequest2)
 

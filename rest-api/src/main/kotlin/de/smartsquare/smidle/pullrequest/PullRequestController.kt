@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController
 class PullRequestController(private val hashUtil: HashUtil, private val pullRequestRepository: PullRequestRepository) {
 
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
-            .findAndRegisterModules()
-            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
+        .findAndRegisterModules()
+        .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
 
     @PostMapping("/action")
     fun pullRequestAction(
@@ -37,9 +37,9 @@ class PullRequestController(private val hashUtil: HashUtil, private val pullRequ
         return when (action.type) {
             CLOSED -> {
                 val pullRequest = action.pullRequest.mapToEntity()
-                        ?: return ResponseEntity
-                                .status(HttpStatus.BAD_REQUEST)
-                                .body("Closed_at field has no value.")
+                    ?: return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body("Closed_at field has no value.")
 
                 val savedPullRequest: PullRequest = pullRequestRepository.save(pullRequest)
 
@@ -58,7 +58,7 @@ class PullRequestController(private val hashUtil: HashUtil, private val pullRequ
 
     @GetMapping
     fun pullRequests(): ResponseEntity<Any> {
-        val pullRequests = pullRequestRepository.findAll()
+        val pullRequests = pullRequestRepository.findAllLimited(100)
 
         if (pullRequests.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Pullrequests found.")
