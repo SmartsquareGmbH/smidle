@@ -11,7 +11,8 @@
     "lint": "eslint --ext .js,.vue --ignore-path ../.gitignore . --max-warnings 0",
     "lint:fix": "eslint --ext .js,.vue --ignore-path ../.gitignore . --max-warnings 0 --fix",
     "prettier": "prettier '**/*.{js,vue}'",
-    "prettier:write": "yarn prettier --write"
+    "prettier:write": "yarn prettier --write",
+    "test": "jest"
   },
   "dependencies": {
     "@mdi/font": "^5.4.55",
@@ -20,14 +21,22 @@
     "typeface-roboto": "^0.0.75"
   },
   "devDependencies": {
+    "@babel/core": "^7.11.1",
+    "@babel/preset-env": "^7.11.0",
     "@nuxtjs/eslint-config": "^3.1.0",
     "@nuxtjs/eslint-module": "^2.0.0",
     "@nuxtjs/vuetify": "^1.11.2",
+    "@vue/test-utils": "^1.0.3",
+    "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
+    "babel-jest": "^26.2.2",
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-nuxt": "^1.0.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "prettier": "^2.0.5"
+    "jest": "^26.2.2",
+    "jest-serializer-vue": "^2.0.2",
+    "prettier": "^2.0.5",
+    "vue-jest": "^3.0.6"
   }
 }
