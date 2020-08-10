@@ -1,8 +1,6 @@
 package de.smartsquare.smidle.pullrequest
 
-import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import de.smartsquare.smidle.FlywayTestExtension
 import de.smartsquare.smidle.TestObjects.closedPullRequest
 import de.smartsquare.smidle.TestObjects.closedPullRequest2
@@ -31,9 +29,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @SpringBootTest
 @ActiveProfiles("test")
 class PullRequestControllerTest {
-    private val objectMapper: ObjectMapper = jacksonObjectMapper()
-            .findAndRegisterModules()
-            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
+
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -168,16 +166,19 @@ class PullRequestControllerTest {
     }
 
     @Test
-    fun `returns not found if no pullrequest is in database`() {
+    fun `returns emptyList if no pull request is in database`() {
         assertEquals(pullRequestRepository.findAll(), emptyList<PullRequest>())
 
         mockMvc
             .get("/api/pull-request")
-            .andExpect { status { isNotFound } }
+            .andExpect {
+                status { isOk }
+                jsonPath("$.length()", equalTo(0))
+            }
     }
 
     @Test
-    fun `returns latest pullrequests`() {
+    fun `returns latest pull requests`() {
         pullRequestRepository.save(closedPullRequest)
         pullRequestRepository.save(closedPullRequest2)
 
@@ -191,7 +192,7 @@ class PullRequestControllerTest {
     }
 
     @Test
-    fun `returns null if no closed pullrequest is in database`() {
+    fun `returns null if no closed pull request is in database`() {
         assertEquals(pullRequestRepository.findAll(), emptyList<PullRequest>())
 
         val get = get("/api/pull-request/lifetime/")
@@ -207,7 +208,7 @@ class PullRequestControllerTest {
     }
 
     @Test
-    fun `returns average lifetime in minutes of all pullrequests`() {
+    fun `returns average lifetime in minutes of all pull requests`() {
         pullRequestRepository.save(closedPullRequest)
         pullRequestRepository.save(closedPullRequest2)
 

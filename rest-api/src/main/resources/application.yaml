@@ -8,6 +8,9 @@ spring:
     url: jdbc:postgresql://localhost:5432/smidle-db
     username: smidle
     password: postgres
+  jackson:
+    mapper:
+      accept-case-insensitive-enums: true
 
 webhooks:
   secret: "1.k%Q[UA>^{4Z?}~VD7="

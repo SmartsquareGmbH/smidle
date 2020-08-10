@@ -1,8 +1,6 @@
 package de.smartsquare.smidle.pullrequest
 
-import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import de.smartsquare.smidle.pullrequest.ActionType.CLOSED
 import de.smartsquare.smidle.pullrequest.ActionType.REOPENED
 import de.smartsquare.smidle.secret.HashUtil
@@ -17,11 +15,11 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/pull-request")
-class PullRequestController(private val hashUtil: HashUtil, private val pullRequestRepository: PullRequestRepository) {
-
-    private val objectMapper: ObjectMapper = jacksonObjectMapper()
-        .findAndRegisterModules()
-        .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
+class PullRequestController(
+    private val hashUtil: HashUtil,
+    private val pullRequestRepository: PullRequestRepository,
+    private val objectMapper: ObjectMapper
+) {
 
     @PostMapping("/action")
     fun pullRequestAction(
@@ -58,13 +56,7 @@ class PullRequestController(private val hashUtil: HashUtil, private val pullRequ
 
     @GetMapping
     fun pullRequests(): ResponseEntity<Any> {
-        val pullRequests = pullRequestRepository.findAllLimited(100)
-
-        if (pullRequests.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Pullrequests found.")
-        }
-
-        return ResponseEntity.ok().body(pullRequests)
+        return ResponseEntity.ok().body(pullRequestRepository.findAllLimited(100))
     }
 
     @GetMapping("/lifetime")
@@ -77,12 +69,8 @@ class PullRequestController(private val hashUtil: HashUtil, private val pullRequ
     private fun signatureIsInvalid(payload: String, signature: String) = !hashUtil.checkSignature(payload, signature)
 
     private fun calculateAverageLifetime(pullRequests: List<PullRequest>): Long? {
-        var sumLifetime: Long = 0
-
         return if (pullRequests.isNotEmpty()) {
-            pullRequests.forEach { sumLifetime += it.lifetime }
-
-            sumLifetime / pullRequests.size
+            pullRequests.map { it.lifetime }.average().toLong()
         } else {
             null
         }
