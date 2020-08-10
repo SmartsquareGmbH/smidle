@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-row>
+    <v-row align="center" justify="center">
       <v-col cols="11">
         <Card />
       </v-col>
