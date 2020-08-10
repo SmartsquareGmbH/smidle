@@ -1,9 +1,9 @@
 <template>
-  <v-card style="background-color: #26a69a; color: white;">
+  <v-card class="card">
     <v-card-title>
       Average lifetime of a Pull Request
     </v-card-title>
-    <v-card-text style="font-size: 16px; color: #eeeeee;">
+    <v-card-text class="text">
       {{ averageLiftime }}
     </v-card-text>
   </v-card>
@@ -32,3 +32,14 @@ export default {
   },
 }
 </script>
+
+<style>
+.card {
+  background-color: #26a69a !important;
+  color: white !important;
+}
+.text {
+  font-size: 16px !important;
+  color: #eeeeee !important;
+}
+</style>

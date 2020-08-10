@@ -1,35 +1,36 @@
 <template>
   <v-container class="ma-0 pa-0">
-    <v-row>
-      <v-col cols="2" xs="4" md="3" lg="2">
+    <v-card>
+      <v-card-text class="px-6">
         <v-select
           v-model="filterLifetime"
           :items="filterLifetimeOptions"
           item-text="text"
           item-value="text"
           return-object
-          label="Lifetime"
+          label="Filter Lifetime of Pull Requests:"
+          class="mx-1 mt-4 mb-3"
         />
-      </v-col>
-    </v-row>
-    <v-data-table
-      :headers="headers"
-      :items="filteredPullRequests"
-      :items-per-page="15"
-      :footer-props="{ 'items-per-page-options': filterNumberOptions }"
-      :loading="loading"
-      loading-text="Loading Data"
-      no-data-text="No Data"
-    >
-      <template v-slot:item="{ item }">
-        <tr style="cursor: pointer;" @click="openURL(item.url)">
-          <td>{{ item.title }}</td>
-          <td>{{ item.url }}</td>
-          <td>{{ item.lifetime }}</td>
-          <td>{{ item.merged }}</td>
-        </tr>
-      </template>
-    </v-data-table>
+        <v-data-table
+          :headers="headers"
+          :items="filteredPullRequests"
+          :items-per-page="15"
+          :footer-props="{ 'items-per-page-options': filterNumberOptions }"
+          :loading="loading"
+          loading-text="Loading Data"
+          no-data-text="No Data"
+        >
+          <template v-slot:item="{ item }">
+            <tr style="cursor: pointer;" @click="openURL(item.url)">
+              <td>{{ item.title }}</td>
+              <td>{{ item.url }}</td>
+              <td>{{ item.lifetime }}</td>
+              <td>{{ item.merged }}</td>
+            </tr>
+          </template>
+        </v-data-table>
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>
 
@@ -95,3 +96,18 @@ export default {
   },
 }
 </script>
+
+<style>
+.v-text-field .v-label--active {
+  font-size: 18px;
+  color: #757575;
+}
+.v-select__slot {
+  padding-top: 6px;
+}
+.v-select__selection--comma {
+  padding-left: 1px;
+  font-size: 14px;
+  color: #757575 !important;
+}
+</style>
