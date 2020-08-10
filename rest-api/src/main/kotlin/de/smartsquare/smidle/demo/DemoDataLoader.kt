@@ -20,6 +20,7 @@ class DemoDataLoader(private val pullRequestRepository: PullRequestRepository) :
         loadData()
     }
 
+    @Suppress("LongMethod")
     fun loadData() {
         pullRequestRepository.save(PullRequest(
             id = 279147436,
