@@ -34,10 +34,10 @@ export default {
   axios: {
     proxy: true,
   },
-  loading: { color: "#35B0AE" },
+  loading: { color: "#26A69A" },
   loadingIndicator: {
     name: "pulse",
-    color: "#4DB6AC",
+    color: "#26A69A",
     background: "white",
   },
   layoutTransition: {
@@ -50,7 +50,7 @@ export default {
     theme: {
       themes: {
         light: {
-          primary: "#4DB6AC",
+          primary: "#26A69A",
           secondary: "#C2185B",
           accent: colors.grey.lighten1,
         },
