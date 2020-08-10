@@ -1,9 +1,9 @@
 <template>
-  <v-card>
+  <v-card style="background-color: #26a69a; color: white;">
     <v-card-title>
       Average lifetime of a Pull Request
     </v-card-title>
-    <v-card-text style="font-size: 16px;">
+    <v-card-text style="font-size: 16px; color: #eeeeee;">
       {{ averageLiftime }}
     </v-card-text>
   </v-card>
@@ -24,7 +24,7 @@ export default {
         return "No data"
       }
 
-      return humanreadableLifetime(this.averageLiftetimeInMinutes)
+      return humanreadableLifetime(this.averageLiftetimeInMinutes, false)
     },
   },
   async mounted() {

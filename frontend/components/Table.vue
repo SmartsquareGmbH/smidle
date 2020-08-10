@@ -1,7 +1,7 @@
 <template>
   <v-container class="ma-0 pa-0">
     <v-row>
-      <v-col cols="2">
+      <v-col cols="2" xs="4" md="3" lg="2">
         <v-select
           v-model="filterLifetime"
           :items="filterLifetimeOptions"
@@ -74,7 +74,7 @@ export default {
         title: response[i].title,
         url: response[i].url,
         lifetimeInMinutes: response[i].lifetime,
-        lifetime: humanreadableLifetime(response[i].lifetime),
+        lifetime: humanreadableLifetime(response[i].lifetime, true),
         merged: this.isMerged(response[i].mergedAt),
       })
     }
