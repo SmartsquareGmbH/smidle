@@ -4,6 +4,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+  jackson:
+    mapper:
+      accept-case-insensitive-enums: true
 
 webhooks:
   secret: "abc123"
