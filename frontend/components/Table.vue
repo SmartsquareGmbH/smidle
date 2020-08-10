@@ -17,16 +17,17 @@
       :items="filteredPullRequests"
       :items-per-page="15"
       :footer-props="{ 'items-per-page-options': filterNumberOptions }"
+      :loading="loading"
+      loading-text="Loading Data"
+      no-data-text="No Data"
     >
-      <template v-slot:body="{ items }">
-        <tbody>
-          <tr v-for="item in items" :key="item.id" style="cursor: pointer;" @click="openURL(item.url)">
-            <td>{{ item.title }}</td>
-            <td>{{ item.url }}</td>
-            <td>{{ item.lifetime }}</td>
-            <td>{{ item.merged }}</td>
-          </tr>
-        </tbody>
+      <template v-slot:item="{ item }">
+        <tr style="cursor: pointer;" @click="openURL(item.url)">
+          <td>{{ item.title }}</td>
+          <td>{{ item.url }}</td>
+          <td>{{ item.lifetime }}</td>
+          <td>{{ item.merged }}</td>
+        </tr>
       </template>
     </v-data-table>
   </v-container>
@@ -47,6 +48,7 @@ export default {
     ]
 
     return {
+      loading: true,
       headers: [
         { text: "Pull Request", value: "title" },
         { text: "URL", value: "url" },
@@ -65,21 +67,19 @@ export default {
     },
   },
   async mounted() {
-    this.pullRequests = await this.$axios.$get("/api/pull-request").then((response) => {
-      const returnObject = []
+    const response = await this.$axios.$get("/api/pull-request")
 
-      for (const i in response) {
-        returnObject.push({
-          title: response[i].title,
-          url: response[i].url,
-          lifetimeInMinutes: response[i].lifetime,
-          lifetime: humanreadableLifetime(response[i].lifetime),
-          merged: this.isMerged(response[i].mergedAt),
-        })
-      }
+    for (const i in response) {
+      this.pullRequests.push({
+        title: response[i].title,
+        url: response[i].url,
+        lifetimeInMinutes: response[i].lifetime,
+        lifetime: humanreadableLifetime(response[i].lifetime),
+        merged: this.isMerged(response[i].mergedAt),
+      })
+    }
 
-      return returnObject
-    })
+    this.loading = false
   },
   methods: {
     isMerged(merged) {
