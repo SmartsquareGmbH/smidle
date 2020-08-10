@@ -20,7 +20,7 @@ export default {
   },
   computed: {
     averageLiftime() {
-      if (this.averageLiftetimeInMinutes === null) {
+      if (!this.averageLiftetimeInMinutes) {
         return "No data"
       }
 

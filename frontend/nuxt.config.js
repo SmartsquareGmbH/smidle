@@ -61,17 +61,6 @@ export default {
       font: false,
     },
   },
-  vueMaterial: {
-    theme: {
-      themes: {
-        light: {
-          primary: "#4DB6AC",
-          secondary: "#C2185B",
-          accent: colors.grey.lighten1,
-        },
-      },
-    },
-  },
   build: {},
   proxy: {
     "/api": {
