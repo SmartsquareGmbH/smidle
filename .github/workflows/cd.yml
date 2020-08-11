@@ -166,7 +166,7 @@ jobs:
         run: kustomize build $GITHUB_WORKSPACE/deployment | kubectl --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig apply -f -
 
       - name: Restart Pods
-        run: kubectl --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig rollout restart deployment/smidle
+        run: kubectl --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig rollout restart deployment/smidle-restapi deployment/smidle-frontend
 
   delete-old-images:
     needs: [publish-backend]

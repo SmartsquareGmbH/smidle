@@ -20,5 +20,5 @@ $ docker push docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api
 3. Kubernetes Pods neustarten: 
 
 ```bash
-$ kubectl rollout restart deployment/smidle
+$ kubectl rollout restart deployment/smidle-restapi
 ```
