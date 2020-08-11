@@ -3,6 +3,7 @@
     <v-card>
       <v-card-text class="px-6">
         <v-select
+          v-if="showFilter"
           v-model="filterLifetime"
           :items="filterLifetimeOptions"
           item-text="text"
@@ -50,6 +51,7 @@ export default {
 
     return {
       loading: true,
+      showFilter: true,
       headers: [
         { text: "Pull Request", value: "title" },
         { text: "URL", value: "url" },
@@ -68,7 +70,10 @@ export default {
     },
   },
   async mounted() {
-    const response = await this.$axios.$get("/api/pull-request")
+    const response = await this.$axios.$get("/api/pull-request").catch(() => {
+      this.pullRequests = []
+      this.showFilter = false
+    })
 
     for (const i in response) {
       this.pullRequests.push({

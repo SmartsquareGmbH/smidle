@@ -28,7 +28,9 @@ export default {
     },
   },
   async mounted() {
-    this.averageLiftetimeInMinutes = await this.$axios.$get("/api/pull-request/lifetime")
+    this.averageLiftetimeInMinutes = await this.$axios
+      .$get("/api/pull-request/lifetime")
+      .catch(() => (this.averageLiftetimeInMinutes = null))
   },
 }
 </script>
