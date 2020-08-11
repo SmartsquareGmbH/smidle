@@ -22,7 +22,7 @@ spec:
           imagePullPolicy: Always
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 3000
             - name: https
               containerPort: 443  # TODO need?
 ---
@@ -37,7 +37,7 @@ spec:
     - protocol: TCP
       name: http
       port: 80
-      targetPort: 80
+      targetPort: 3000
     - protocol: TCP
       name: https
       port: 443
