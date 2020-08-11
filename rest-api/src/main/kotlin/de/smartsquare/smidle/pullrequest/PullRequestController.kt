@@ -70,7 +70,7 @@ class PullRequestController(
 
     private fun calculateAverageLifetime(pullRequests: List<PullRequest>): Long? {
         return if (pullRequests.isNotEmpty()) {
-            pullRequests.map { it.lifetime }.average().toLong()
+            pullRequests.map { it.lifetimeMinutes }.average().toLong()
         } else {
             null
         }

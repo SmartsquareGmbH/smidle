@@ -14,7 +14,7 @@ data class PullRequest(
     val url: String,
     val createdAt: Instant,
     val closedAt: Instant,
-    val lifetime: Long = Duration.between(createdAt, closedAt).toMinutes(),
+    val lifetimeMinutes: Long = Duration.between(createdAt, closedAt).toMinutes(),
     val mergedAt: Instant? = null
 ) {
 

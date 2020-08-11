@@ -24,7 +24,7 @@
             <tr style="cursor: pointer;" @click="openURL(item.url)">
               <td>{{ item.title }}</td>
               <td>{{ item.url }}</td>
-              <td>{{ item.lifetime }}</td>
+              <td>{{ item.lifetimeReadable }}</td>
               <td>{{ item.merged }}</td>
             </tr>
           </template>
@@ -53,7 +53,7 @@ export default {
       headers: [
         { text: "Pull Request", value: "title" },
         { text: "URL", value: "url" },
-        { text: "Life Time", value: "lifetime" },
+        { text: "Life Time", value: "lifetimeMinutes" },
         { text: "Merged", value: "merged" },
       ],
       pullRequests: [],
@@ -74,8 +74,8 @@ export default {
       this.pullRequests.push({
         title: response[i].title,
         url: response[i].url,
-        lifetimeInMinutes: response[i].lifetime,
-        lifetime: humanreadableLifetime(response[i].lifetime, true),
+        lifetimeInMinutes: response[i].lifetimeMinutes,
+        lifetimeReadable: humanreadableLifetime(response[i].lifetimeMinutes, true),
         merged: this.isMerged(response[i].mergedAt),
       })
     }
