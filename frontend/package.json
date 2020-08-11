@@ -15,7 +15,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@mdi/font": "^5.4.55",
     "@nuxtjs/axios": "^5.12.1",
     "nuxt": "^2.14.0",
     "typeface-roboto": "^0.0.75"

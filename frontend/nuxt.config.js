@@ -26,7 +26,7 @@ export default {
       // ogHost: "smidle.smartsquare.de",
     },
   },
-  css: ["typeface-roboto/index.css", "@mdi/font/css/materialdesignicons.css"],
+  css: ["typeface-roboto/index.css"],
   plugins: [],
   components: true,
   buildModules: ["@nuxtjs/eslint-module", "@nuxtjs/vuetify"],
