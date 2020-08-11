@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: smidle
+  name: smidle-restapi
   labels:
-    app: smidle
+    app: smidle-restapi
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: smidle
+      app: smidle-restapi
   template:
     metadata:
       labels:
-        app: smidle
+        app: smidle-restapi
     spec:
       imagePullSecrets:
         - name: docker-registries
@@ -41,3 +41,16 @@ spec:
             - name: config
               mountPath: /etc/rest-api.properties
               subPath: rest-api.properties
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smidle-restapi-service
+spec:
+  type: NodePort
+  selector:
+    app: smidle-restapi
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
