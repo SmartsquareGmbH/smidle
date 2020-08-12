@@ -47,7 +47,6 @@ kind: Service
 metadata:
   name: smidle-restapi-service
 spec:
-  type: NodePort
   selector:
     app: smidle-restapi
   ports:

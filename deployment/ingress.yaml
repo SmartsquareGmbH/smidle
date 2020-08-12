@@ -124,7 +124,7 @@ spec:
           backend:
             serviceName: smidle-frontend-service
             servicePort: http
-        - path: /api/(.*)
+        - path: /api/
           backend:
             serviceName: smidle-restapi-service
             servicePort: http
