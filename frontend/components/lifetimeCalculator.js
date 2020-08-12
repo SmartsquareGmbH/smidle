@@ -6,6 +6,9 @@ export default function humanreadableLifetime(lifetimeInMinutes, shorten) {
   const lifetime = []
 
   if (shorten) {
+    if (lifetimeInMinutes < 1) {
+      return "< 1m"
+    }
     if (days > 0) {
       lifetime.push(`${days}d`)
     }
@@ -16,6 +19,9 @@ export default function humanreadableLifetime(lifetimeInMinutes, shorten) {
       lifetime.push(`${minutes}m`)
     }
   } else {
+    if (lifetimeInMinutes < 1) {
+      return "< 1 minute"
+    }
     if (days === 1) {
       lifetime.push("1 day")
     } else if (days >= 1) {
