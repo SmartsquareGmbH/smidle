@@ -9,7 +9,7 @@ import java.time.Instant
 data class PullRequestObject(
     val id: Long,
     val title: String,
-    val url: String,
+    @JsonProperty("html_url") val url: String,
     @JsonProperty("created_at") val createdAt: Instant,
     @JsonProperty("closed_at") val closedAt: Instant? = null,
     @JsonProperty("merged_at") val mergedAt: Instant? = null
