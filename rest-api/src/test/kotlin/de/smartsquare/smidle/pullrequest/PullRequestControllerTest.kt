@@ -54,14 +54,14 @@ class PullRequestControllerTest {
 
     @Test
     fun `sending opened action with valid signature returns pull request action`() {
-        val validSignature = "sha1=343a8f2a982c6b40331a16ab676b512270d0cc52"
+        val validSignature = "sha1=d36fac798a2d276dbfa0587ed80c5ff4bf59009f"
         val openedAction = """
             {
               "action": "opened",
               "pull_request": {
                 "id": 279147437,
                 "title": "Pull Request Title",
-                "url": "http://localhost",
+                "html_url": "http://localhost",
                 "created_at": "2020-07-28T11:48:28Z"
               }
             }
@@ -91,14 +91,14 @@ class PullRequestControllerTest {
 
     @Test
     fun `sending closed action with valid signature returns created pull request`() {
-        val validSignature = "sha1=8cf5eb15be6d8bff5e4ab4590f259a3e61526fb4"
+        val validSignature = "sha1=5d7cbc423bc41026dcb75623b18cffe73d0b5143"
         val closedAction = """
             {
               "action": "closed",
               "pull_request": {
                 "id": 279147438,
                 "title": "Pull Request Title",
-                "url": "http://localhost",
+                "html_url": "http://localhost",
                 "created_at": "2020-07-28T11:48:28Z",
                 "closed_at": "2020-07-28T12:48:28Z"
               }
@@ -128,14 +128,14 @@ class PullRequestControllerTest {
         pullRequestRepository.save(closedPullRequest)
         assertNotNull(pullRequestRepository.findByIdOrNull(closedPullRequest.id))
 
-        val validSignature = "sha1=eadde397bba5b4c271950edf6973b33096c060b8"
+        val validSignature = "sha1=85406d5d57c5d7a7230707e6a04315ce0a6f9c47"
         val reopenedAction = """
             {
               "action": "reopened",
               "pull_request": {
                 "id": 279147438,
                 "title": "Pull Request Title",
-                "url": "http://localhost",
+                "html_url": "http://localhost",
                 "created_at": "2020-07-28T11:48:28Z"
               }
             }
