@@ -56,6 +56,9 @@ export default {
         },
       },
     },
+    icons: {
+      iconfont: "mdiSvg",
+    },
     defaultAssets: {
       icons: false,
       font: false,

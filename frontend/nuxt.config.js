@@ -23,7 +23,7 @@ export default {
     },
     meta: {
       name: "Smidle",
-      // ogHost: "smidle.smartsquare.de",
+      ogHost: "smidle.smartsquare.de",
     },
   },
   css: ["typeface-roboto/index.css"],
@@ -55,6 +55,9 @@ export default {
           accent: colors.grey.lighten1,
         },
       },
+    },
+    icons: {
+      iconfont: "mdiSvg",
     },
     defaultAssets: {
       icons: false,
