@@ -33,7 +33,8 @@ spec:
             - name: spring.config.additional-location
               value: "file:/etc/rest-api.properties"
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
           volumeMounts:
             - name: config
               mountPath: /etc/ca-certificate-postgresql.crt
@@ -51,5 +52,6 @@ spec:
     app: smidle-restapi
   ports:
     - protocol: TCP
+      name: http
       port: 80
       targetPort: 8080
