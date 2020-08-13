@@ -4,6 +4,7 @@ resources:
   - ingress.yaml
   - smidle-restapi.yaml
   - smidle-frontend.yaml
+  - metrics-server.yaml
 secretGenerator:
   - name: docker-registries
     files:
