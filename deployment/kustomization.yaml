@@ -5,14 +5,7 @@ resources:
   - smidle-restapi.yaml
   - smidle-frontend.yaml
   - metrics-server.yaml
-secretGenerator:
-  - name: docker-registries
-    files:
-      - .dockerconfigjson=docker-registry-auth.json
-    type: kubernetes.io/dockerconfigjson
-  - name: smidle-secret
-    literals:
-      - postgres-password=tuuado69z4ynd05t
+  - sealed-secrets.yaml
 configMapGenerator:
   - name: backendconfig
     files:

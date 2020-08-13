@@ -1,8 +1,0 @@
-{
-  "auths": {
-    "docker.pkg.github.com": {
-      "username": "darivs",
-      "password": "768dc2c1435b3df4711b5970a6829e9b0c7f72b4"
-    }
-  }
-}
