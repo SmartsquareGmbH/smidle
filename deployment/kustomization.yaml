@@ -5,6 +5,7 @@ resources:
   - smidle-restapi.yaml
   - smidle-frontend.yaml
   - metrics-server.yaml
+  - sealed-secrets-controller.yaml
   - sealed-secrets.yaml
 configMapGenerator:
   - name: backendconfig
