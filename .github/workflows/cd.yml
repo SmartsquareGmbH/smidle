@@ -83,8 +83,6 @@ jobs:
           docker tag smidle-frontend docker.pkg.github.com/smartsquaregmbh/smidle/smidle-frontend:latest
           docker push docker.pkg.github.com/smartsquaregmbh/smidle/smidle-frontend:latest
 
-
-
   check-deployment:
     runs-on: ubuntu-latest
 
