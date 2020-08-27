@@ -1,6 +1,8 @@
 name: CD
 
-on: push
+on:
+  release:
+    types: [published]
 
 jobs:
   check-backend:
@@ -61,16 +63,12 @@ jobs:
 
   publish-frontend:
     needs: [check-frontend]
-    if: github.ref == 'refs/heads/master'
 
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Build Frontend
-        run: docker build frontend --tag smidle-frontend
 
       - uses: azure/docker-login@v1
         with:
@@ -80,32 +78,13 @@ jobs:
 
       - name: Push Image
         run: |
-          docker tag smidle-frontend docker.pkg.github.com/smartsquaregmbh/smidle/smidle-frontend:latest
-          docker push docker.pkg.github.com/smartsquaregmbh/smidle/smidle-frontend:latest
-
-  check-deployment:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setupt kustomize
-        uses: imranismail/setup-kustomize@v1.3.0
-        with:
-          kustomize-version: "3.6.1"
-
-      - name: Render Deployment Manifests
-        run: kustomize build $GITHUB_WORKSPACE/deployment > deployment.yaml
-
-      - name: Deployment Check
-        uses: instrumenta/kubeval-action@master
-        with:
-          files: "deployment.yaml"
+          docker build frontend --tag docker.pkg.github.com/smartsquaregmbh/smidle/smidle-frontend:$VERSION
+          docker push docker.pkg.github.com/smartsquaregmbh/smidle/smidle-frontend:$VERSION
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
 
   publish-backend:
     needs: [check-backend]
-    if: github.ref == 'refs/heads/master'
 
     runs-on: ubuntu-latest
 
@@ -127,7 +106,8 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build Backend
-        run: ./rest-api/gradlew -p rest-api jibDockerBuild
+        working-directory: rest-api
+        run: ./gradlew jibDockerBuild
 
       - uses: azure/docker-login@v1
         with:
@@ -136,11 +116,34 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push images
-        run: docker push docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api:latest
+        run: |
+          docker tag smidle-rest-api docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api:$VERSION
+          docker push docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api:$VERSIO
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
+
+  check-deployment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup kustomize
+        uses: imranismail/setup-kustomize@v1.3.0
+        with:
+          kustomize-version: "3.6.1"
+
+      - name: Render Deployment Manifests
+        run: kustomize build $GITHUB_WORKSPACE/deployment > deployment.yaml
+
+      - name: Deployment Check
+        uses: instrumenta/kubeval-action@master
+        with:
+          files: "deployment.yaml"
 
   deploy:
     needs: [publish-backend, publish-frontend, check-deployment]
-    if: github.ref == 'refs/heads/master'
 
     runs-on: ubuntu-latest
 
@@ -148,7 +151,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setupt kustomize
+      - name: Setup kustomize
         uses: imranismail/setup-kustomize@v1.3.0
         with:
           kustomize-version: "3.6.1"
@@ -160,20 +163,29 @@ jobs:
         with:
           args: kubernetes cluster kubeconfig show leonies-cluster > $GITHUB_WORKSPACE/.kubeconfig
 
+      - name: Update image versions
+        working-directory: deployment
+        run: |
+          kustomize edit set image docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api=docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api:$VERSION
+          kustomize edit set image docker.pkg.github.com/smartsquaregmbh/smidle/smidle-frontend=docker.pkg.github.com/smartsquaregmbh/smidle/smidle-frontend:$VERSION
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
+
       - name: Deploy DigitalOcean Kubernetes
         run: kustomize build $GITHUB_WORKSPACE/deployment | kubectl --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig apply -f -
 
-      - name: Restart Pods
-        run: kubectl --kubeconfig=$GITHUB_WORKSPACE/.kubeconfig rollout restart deployment/smidle-restapi deployment/smidle-frontend
-
   delete-old-images:
-    needs: [publish-backend]
-    if: github.ref == 'refs/heads/master'
+    needs: [deploy]
 
     runs-on: ubuntu-latest
 
     steps:
-      - name: Delte restapi
+      - name: Delete Backend
         uses: actions/delete-package-versions@v1
         with:
           package-name: "smidle-rest-api"
+
+      - name: Delete Frontend
+        uses: actions/delete-package-versions@v1
+        with:
+          package-name: "smidle-frontend"

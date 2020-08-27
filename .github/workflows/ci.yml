@@ -1,0 +1,80 @@
+name: CD
+
+on: push
+
+jobs:
+  check-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup JDK 14
+      uses: actions/setup-java@v1.3.0
+      with:
+        java-version: 14
+
+    - name: Setup Gradle cache
+      uses: actions/cache@v2.0.0
+      with:
+        path: ~/.gradle
+        key: ${{ runner.os }}-gradle-${{ hashFiles('rest-api/build.gradle') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Check
+      run: ./rest-api/gradlew -p rest-api check
+
+    - name: Upload restapi reports
+      uses: actions/upload-artifact@v2.0.1
+      if: failure()
+      with:
+        name: Restapi Reports
+        path: rest-api/build/reports
+
+  check-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1.4.2
+        with:
+          node-version: 14.x
+
+      - name: Get yarn cache
+        id: yarn-cache
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Setup yarn cache
+        uses: actions/cache@v2.0.0
+        with:
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('frontend/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
+
+      - name: Check
+        run: yarn --cwd frontend --frozen-lockfile && yarn --cwd frontend lint && yarn --cwd frontend test
+
+  check-deployment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup kustomize
+        uses: imranismail/setup-kustomize@v1.3.0
+        with:
+          kustomize-version: "3.6.1"
+
+      - name: Render Deployment Manifests
+        run: kustomize build $GITHUB_WORKSPACE/deployment > deployment.yaml
+
+      - name: Deployment Check
+        uses: instrumenta/kubeval-action@master
+        with:
+          files: "deployment.yaml"
