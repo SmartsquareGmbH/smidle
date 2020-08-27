@@ -118,7 +118,7 @@ jobs:
       - name: Push images
         run: |
           docker tag smidle-rest-api docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api:$VERSION
-          docker push docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api:$VERSIO
+          docker push docker.pkg.github.com/smartsquaregmbh/smidle/smidle-rest-api:$VERSION
         env:
           VERSION: ${{ github.event.release.tag_name }}
 
