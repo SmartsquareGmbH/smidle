@@ -2,16 +2,36 @@
   <v-container class="ma-0 pa-0">
     <v-card>
       <v-card-text class="px-6">
-        <v-select
-          v-if="showFilter"
-          v-model="filterLifetime"
-          :items="filterLifetimeOptions"
-          item-text="text"
-          item-value="text"
-          return-object
-          label="Filter Lifetime of Pull Requests:"
-          class="mx-1 mt-4 mb-3"
-        />
+        <v-row>
+          <v-col cols="4">
+            <v-select
+              v-if="showFilter"
+              v-model="filterLifetime"
+              :items="filterLifetimeOptions"
+              item-text="text"
+              item-value="text"
+              return-object
+              label="Lifetime"
+              solo
+              clearable
+            />
+          </v-col>
+
+          <v-col cols="8">
+            <v-select
+              v-model="selectedRepositories"
+              :items="pullRequests"
+              item-text="repository"
+              item-value="repository"
+              chips
+              label="Repositories"
+              multiple
+              solo
+              clearable
+            ></v-select>
+          </v-col>
+        </v-row>
+
         <v-data-table
           :headers="headers"
           :items="filteredPullRequests"
@@ -22,7 +42,7 @@
           no-data-text="No Data"
         >
           <template v-slot:item="{ item }">
-            <tr style="cursor: pointer;" @click="openURL(item.url)">
+            <tr style="cursor: pointer;" @click="window.open(item.url, '_blank')">
               <td>{{ item.title }}</td>
               <td>{{ item.url }}</td>
               <td>{{ item.lifetimeReadable }}</td>
@@ -39,34 +59,46 @@
 import humanreadableLifetime from "./lifetimeCalculator"
 
 export default {
-  data() {
-    const filterLifetimeOptions = [
-      { text: "<= 12 hours", condition: (pullRequest) => pullRequest.lifetimeInMinutes <= 720 },
-      { text: ">= 12 hours", condition: (pullRequest) => pullRequest.lifetimeInMinutes >= 720 },
-      { text: ">= 1 days", condition: (pullRequest) => pullRequest.lifetimeInMinutes >= 1440 },
-      { text: ">= 2 days", condition: (pullRequest) => pullRequest.lifetimeInMinutes >= 2880 },
-      { text: ">= 3 days", condition: (pullRequest) => pullRequest.lifetimeInMinutes >= 4320 },
-      { text: "All", condition: () => true },
-    ]
-
-    return {
-      loading: true,
-      showFilter: true,
-      headers: [
-        { text: "Pull Request", value: "title" },
-        { text: "URL", value: "url" },
-        { text: "Life Time", value: "lifetimeMinutes" },
-        { text: "Merged", value: "merged" },
-      ],
-      pullRequests: [],
-      filterNumberOptions: [5, 15, 25, 50, 100],
-      filterLifetimeOptions,
-      filterLifetime: filterLifetimeOptions[filterLifetimeOptions.length - 1],
-    }
-  },
+  data: () => ({
+    headers: [
+      { text: "Pull Request", value: "title" },
+      { text: "URL", value: "url" },
+      { text: "Life Time", value: "lifetimeMinutes" },
+      { text: "Merged", value: "merged" },
+    ],
+    filterLifetimeOptions: [
+      { text: "<= 12 hours", condition: (pullRequest) => pullRequest.lifetimeMinutes <= 720 },
+      { text: ">= 12 hours", condition: (pullRequest) => pullRequest.lifetimeMinutes >= 720 },
+      { text: ">= 1 days", condition: (pullRequest) => pullRequest.lifetimeMinutes >= 1440 },
+      { text: ">= 2 days", condition: (pullRequest) => pullRequest.lifetimeMinutes >= 2880 },
+      { text: ">= 3 days", condition: (pullRequest) => pullRequest.lifetimeMinutes >= 4320 },
+    ],
+    loading: true,
+    showFilter: true,
+    pullRequests: [],
+    selectedRepositories: [],
+    filterNumberOptions: [5, 15, 25, 50, 100],
+    filterLifetime: null,
+  }),
   computed: {
+    lifetimeFilterEnabled() {
+      return !!this.filterLifetime
+    },
+    repositoryFilterEnabled() {
+      return this.selectedRepositories.length > 0
+    },
     filteredPullRequests() {
-      return this.pullRequests.filter(this.filterLifetime.condition)
+      if (this.repositoryFilterEnabled && this.lifetimeFilterEnabled) {
+        return this.pullRequests
+          .filter(this.filterLifetime.condition)
+          .filter((pr) => this.selectedRepositories.includes(pr.repository))
+      } else if (this.repositoryFilterEnabled) {
+        return this.pullRequests.filter((pr) => this.selectedRepositories.includes(pr.repository))
+      } else if (this.lifetimeFilterEnabled) {
+        return this.pullRequests.filter(this.filterLifetime.condition)
+      } else {
+        return this.pullRequests
+      }
     },
   },
   async mounted() {
@@ -75,29 +107,17 @@ export default {
       this.showFilter = false
     })
 
-    for (const i in response) {
-      this.pullRequests.push({
-        title: response[i].title,
-        url: response[i].url,
-        lifetimeInMinutes: response[i].lifetimeMinutes,
-        lifetimeReadable: humanreadableLifetime(response[i].lifetimeMinutes, true),
-        merged: this.isMerged(response[i].mergedAt),
-      })
+    for (const pr of response) {
+      const additionalProperties = {
+        repository: pr.url.substring(pr.url.indexOf("github.com"), pr.url.length).split("/")[2],
+        lifetimeReadable: humanreadableLifetime(pr.lifetimeMinutes, true),
+        merged: pr.mergedAt === null ? "Not merged" : "Merged",
+      }
+
+      this.pullRequests.push(Object.assign(pr, additionalProperties))
     }
 
     this.loading = false
-  },
-  methods: {
-    isMerged(merged) {
-      if (merged === null) {
-        return "Not merged"
-      } else {
-        return "Merged"
-      }
-    },
-    openURL(url) {
-      window.open(url, "_blank")
-    },
   },
 }
 </script>
@@ -107,9 +127,11 @@ export default {
   font-size: 18px;
   color: #757575;
 }
+
 .v-select__slot {
   padding-top: 6px;
 }
+
 .v-select__selection--comma {
   padding-left: 1px;
   font-size: 14px;
